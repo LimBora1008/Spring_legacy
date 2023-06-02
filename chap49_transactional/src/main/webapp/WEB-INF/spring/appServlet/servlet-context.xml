@@ -1,0 +1,45 @@
+<beans:beans
+	xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+	<!-- 1. Spring MVC에서 컨트롤러가 사용자의 요청을 받기 위한 HandlerMapping, HandlerAdapter, 
+		ViewResolver Bean 등록 2. @RequestMapping, @Autowired, @Qualifier 어노테이션 인식 -->
+	<annotation-driven />
+	<!-- 컨트롤러 패키지 스캔하여 Bean등록 -->
+	<context:component-scan
+		base-package="com.javalab.controller" />
+	<!-- 웹자원인 정적 리소스 경로 설정(css, js, image etc) -->
+	<resources mapping="/resources/**" location="/resources/" />
+	<!-- <resources mapping="/favicon.ico" location="/favicon.ico" /> -->
+	<!-- 뷰리졸버 설정 -->
+	<beans:bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="/WEB-INF/views/" />
+		<beans:property name="suffix" value=".jsp" />
+	</beans:bean>
+
+	<!-- fileupload 환경 설정 -->
+	<beans:bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<beans:property name="maxUploadSize" value="10000000"></beans:property>
+	</beans:bean>
+
+	<!-- 인터셉터 객체 빈생성(인터셉터 클래스 경로 지정) -->
+	<beans:bean id="loginInterceptor"
+		class="com.javalab.interceptor.LoginInterceptor">
+	</beans:bean>
+
+	<!-- Interceptor 설정
+		 /board/*.do와 같은 요청을 모두 이 인터셉트를 거쳐야 한다.
+		 /resources/**와 같이 css, js, img와 같은 
+		 인터넷 자원들은 인터셉터 적용에서 배재한다. -->
+	<interceptors>
+		<interceptor>
+			<mapping path="/board/*.do" />
+			<exclude-mapping path="/resources/**" />
+			<beans:ref bean="loginInterceptor" />
+		</interceptor>
+	</interceptors>
+</beans:beans>
